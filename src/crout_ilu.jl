@@ -86,6 +86,7 @@ function ilu(A::SparseMatrixCSC{T,I}; τ = 1e-3) where {T,I}
 
         # Append the columns
         append_col!(U, U_row, k, τ)
+        println(inv(U_diag_element))
         append_col!(L, L_col, k, τ, inv(U_diag_element))
 
         # Add the new row and column to U_nonzero_col, L_nonzero_row, U_first, L_first
