@@ -88,6 +88,7 @@ function ilu(A::SparseMatrixCSC{T,I}; τ = 1e-3) where {T,I}
         println("Here")
         println(k) # Testing to see where the type confusion happens
         append_col!(U, U_row, k, τ)
+        println("Here2")
         append_col!(L, L_col, k, τ, inv(U_diag_element))
 
         # Add the new row and column to U_nonzero_col, L_nonzero_row, U_first, L_first
