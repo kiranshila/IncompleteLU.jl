@@ -85,6 +85,7 @@ function ilu(A::SparseMatrixCSC{T,I}; τ = 1e-3) where {T,I}
         # U_diag_element = U_row.values[k]
 
         # Append the columns
+        println("Here")
         append_col!(U, U_row, k, τ)
         println(k) # Testing to see where the type confusion happens
         append_col!(L, L_col, k, τ, inv(U_diag_element))
