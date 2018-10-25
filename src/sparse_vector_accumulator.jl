@@ -92,7 +92,7 @@ end
 
 """
 Basically `A[:, j] = scale * drop(y)`, where drop removes
-values less than `drop`. Note: sorts the `nzind`'s of `y`, 
+values less than `drop`. Note: sorts the `nzind`'s of `y`,
 so that the column can be appended to a SparseMatrixCSC.
 
 Resets the `SparseVectorAccumulator`.
@@ -116,7 +116,7 @@ function append_col!(A::SparseMatrixCSC{Tv}, y::SparseVectorAccumulator{Tv}, j::
 
     # Sort the retained values.
     sort!(y.nzind, 1, total, Base.Sort.QuickSortAlg(), Base.Order.Forward)
-    
+
     @inbounds for idx = 1 : total
         row = y.nzind[idx]
         push!(A.rowval, row)
@@ -124,7 +124,40 @@ function append_col!(A::SparseMatrixCSC{Tv}, y::SparseVectorAccumulator{Tv}, j::
     end
 
     @inbounds A.colptr[j + 1] = A.colptr[j] + total
-    
+
+    empty!(y)
+
+    return nothing
+end
+
+"""
+Same thing as append_col!, but for the case that A is complex
+"""
+function append_col!(A::SparseMatrixCSC{Complex{Tv}}, y::SparseVectorAccumulator{Complex{Tv}}, j::Int, drop::Tv, scale::Tv = one(Tv)) where {Tv}
+    # Move the indices of interest up front
+    total = 0
+
+    @inbounds for idx = 1 : y.nnz
+        row = y.nzind[idx]
+        value = y.nzval[row]
+
+        if abs(value) ≥ drop || row == j
+            total += 1
+            y.nzind[total] = row
+        end
+    end
+
+    # Sort the retained values.
+    sort!(y.nzind, 1, total, Base.Sort.QuickSortAlg(), Base.Order.Forward)
+
+    @inbounds for idx = 1 : total
+        row = y.nzind[idx]
+        push!(A.rowval, row)
+        push!(A.nzval, scale * y.nzval[row])
+    end
+
+    @inbounds A.colptr[j + 1] = A.colptr[j] + total
+
     empty!(y)
 
     return nothing
