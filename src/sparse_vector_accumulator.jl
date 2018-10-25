@@ -132,8 +132,9 @@ end
 
 """
 Same thing as append_col!, but for the case that A is complex
+drop will refer to the threshold of the magnitude of the complex number, as will scale
 """
-function append_col!(A::SparseMatrixCSC{Complex{Tv}}, y::SparseVectorAccumulator{Complex{Tv}}, j::Int, drop::Tv, scale::Tv = one(Tv)) where {Tv}
+function append_col!(A::SparseMatrixCSC{Complex{Tv}}, y::SparseVectorAccumulator{Complex{Tv}}, j::Int, drop::Tv, scale::Complex{Tv} = one(Complex{Tv})) where {Tv}
     # Move the indices of interest up front
     total = 0
 
@@ -153,7 +154,7 @@ function append_col!(A::SparseMatrixCSC{Complex{Tv}}, y::SparseVectorAccumulator
     @inbounds for idx = 1 : total
         row = y.nzind[idx]
         push!(A.rowval, row)
-        push!(A.nzval, scale * y.nzval[row])
+        push!(A.nzval, abs(scale) * y.nzval[row])
     end
 
     @inbounds A.colptr[j + 1] = A.colptr[j] + total
